@@ -1,4 +1,3 @@
--- Imports
 Object = require("libs/classic")
 Lynput = require("libs/lynput")
 Timer = require("libs/hump/timer")
@@ -6,7 +5,6 @@ Timer = require("libs/hump/timer")
 Control = Lynput()
 Lynput.load_key_callbacks()
 
--- Local Functions
 local function recursiveEnumerate(folder, file_list)
 	local items = love.filesystem.getDirectoryItems(folder)
 	for _, item in ipairs(items) do
@@ -32,7 +30,6 @@ local function gotoRoom(room_type, ...)
 	CurrentRoom = _G[room_type](...)
 end
 
--- Love Functions
 function love.load()
 	local object_files = {}
 	recursiveEnumerate("objects", object_files)

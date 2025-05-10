@@ -39,7 +39,7 @@ function GameRoom:draw()
 end
 
 function GameRoom:spawnPower()
-	local idx = self.valid_power_idx[math.random(#self.valid_power_idx)]
+	local idx = self.valid_power_idx[love.math.random(#self.valid_power_idx)]
 	self.tilemap[idx] = 2
 end
 
