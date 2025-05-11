@@ -32,8 +32,8 @@ end
 function GameRoom:draw()
 	if self.game_over then
 		love.graphics.setFont(self.font)
-		love.graphics.setColor(love.math.colorFromBytes(unpack(self.point_color)))
-		love.graphics.print("You lost! Press R to try again.", 100, 200)
+		love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.font_color)))
+		love.graphics.print("You lost! Press R to try again.", 210, 200)
 	end
 
 	for i, tile in ipairs(self.tilemap) do
@@ -41,10 +41,10 @@ function GameRoom:draw()
 		local y = 100
 
 		if tile == 1 then
-			love.graphics.setColor(love.math.colorFromBytes(unpack(self.point_color)))
+			love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.point_color)))
 			love.graphics.rectangle("fill", x + self.tilesize / 2, y, self.tilesize / 4, self.tilesize / 4)
 		elseif tile == 2 then
-			love.graphics.setColor(love.math.colorFromBytes(unpack(self.power_color)))
+			love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.power_color)))
 			love.graphics.rectangle("fill", x + self.tilesize / 2, y, self.tilesize / 4, self.tilesize / 4)
 		end
 	end

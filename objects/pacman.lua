@@ -5,13 +5,13 @@ function Pacman:new(x, y, radius)
 	self.y = y
 	self.radius = radius
 	self.color = { 224, 222, 105 }
-	self.direction = 1
+	self.direction = 1.5
 	self.creation_time = love.timer.getTime()
 end
 
 function Pacman:update(dt)
 	if Control.toggleDirection then
-		self.direction = self.direction == 1 and -1 or 1
+		self.direction = -self.direction
 	end
 
 	self.x = self.x + self.direction
@@ -24,6 +24,6 @@ function Pacman:update(dt)
 end
 
 function Pacman:draw()
-	love.graphics.setColor(love.math.colorFromBytes(unpack(self.color)))
+	love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.color)))
 	love.graphics.circle("fill", self.x, self.y, self.radius)
 end

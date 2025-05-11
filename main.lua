@@ -5,6 +5,8 @@ Timer = require("libs/hump/timer")
 Control = Lynput()
 Lynput.load_key_callbacks()
 
+table.unpack = table.unpack or unpack
+
 local function recursiveEnumerate(folder, file_list)
 	local items = love.filesystem.getDirectoryItems(folder)
 	for _, item in ipairs(items) do
