@@ -1,7 +1,7 @@
 GameRoom = Object:extend()
 
 function GameRoom:new()
-	self.tilesize = 49
+	self.tilesize = WindowWidth / 16
 	self.tilemap = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 	self.valid_power_idx = { 1, 2, 3, 4, 5, 12, 13, 14, 15, 16 }
 	self:spawnPower()
@@ -9,8 +9,10 @@ function GameRoom:new()
 	self.point_color = { 255, 251, 0 }
 	self.power_color = { 255, 255, 255 }
 
-	self.pacman = Pacman(self:getTileX(8), 100 + self.tilesize / 8, self.tilesize / 3)
-	self.ghost = Ghost(self:getTileX(16), 100 + self.tilesize / 8, self.tilesize / 3)
+	self.pacman = Pacman(self:getTileX(8), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3)
+	self.ghost = Ghost(self:getTileX(16), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3)
+	self.border_top = Border(0, (WindowHeight / 2) - self.tilesize / 2)
+	self.border_bot = Border(0, (WindowHeight / 2) + self.tilesize / 2 + 15)
 
 	self.game_over = false
 	self.font = love.graphics.newFont(24)
@@ -33,12 +35,15 @@ function GameRoom:draw()
 	if self.game_over then
 		love.graphics.setFont(self.font)
 		love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.font_color)))
-		love.graphics.print("You lost! Press R to try again.", 210, 200)
+		local txt = "You lost! Press r to try again."
+		local txt_width = self.font:getWidth(txt)
+		local txt_height = self.font:getHeight()
+		love.graphics.print(txt, (WindowWidth - txt_width) / 2, ((WindowHeight - txt_height) / 2) + 150)
 	end
 
 	for i, tile in ipairs(self.tilemap) do
 		local x = self:getTileX(i)
-		local y = 100
+		local y = WindowHeight / 2
 
 		if tile == 1 then
 			love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.point_color)))
@@ -48,6 +53,9 @@ function GameRoom:draw()
 			love.graphics.rectangle("fill", x + self.tilesize / 2, y, self.tilesize / 4, self.tilesize / 4)
 		end
 	end
+
+	self.border_top:draw()
+	self.border_bot:draw()
 
 	self.pacman:draw()
 	self.ghost:draw()
