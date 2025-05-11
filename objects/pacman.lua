@@ -1,11 +1,12 @@
 Pacman = Object:extend()
 
-function Pacman:new(x, y, radius)
+function Pacman:new(x, y, radius, speed)
 	self.x = x
 	self.y = y
 	self.radius = radius
+	self.speed = speed
+	self.direction = 1
 	self.color = { 224, 222, 105 }
-	self.direction = 1.5
 	self.creation_time = love.timer.getTime()
 end
 
@@ -14,7 +15,7 @@ function Pacman:update(dt)
 		self.direction = -self.direction
 	end
 
-	self.x = self.x + self.direction
+	self.x = self.x + (self.direction * self.speed)
 
 	if self.x - self.radius > WindowWidth then
 		self.x = 0 - self.radius
