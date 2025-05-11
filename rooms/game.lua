@@ -22,7 +22,7 @@ function GameRoom:update(dt)
 	if self.game_over then
 		return
 	end
-	if self.pacman.x == self.ghost.x then
+	if math.abs(self.pacman.x - self.ghost.x) <= 2 * (self.tilesize / 3) then
 		self.game_over = true
 	end
 	self.pacman:update(dt)
