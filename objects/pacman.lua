@@ -13,11 +13,13 @@ function Pacman:update(dt)
 	if Control.toggleDirection then
 		self.direction = self.direction == 1 and -1 or 1
 	end
+
 	self.x = self.x + self.direction
-	if self.x > WindowWidth then
-		self.x = 0
-	elseif self.x < 0 then
-		self.x = WindowWidth
+
+	if self.x - self.radius > WindowWidth then
+		self.x = 0 - self.radius
+	elseif self.x + self.radius < 0 then
+		self.x = WindowWidth + self.radius
 	end
 end
 
