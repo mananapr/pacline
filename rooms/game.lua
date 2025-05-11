@@ -1,7 +1,7 @@
 GameRoom = Object:extend()
 
 function GameRoom:new()
-	self.tilesize = 48
+	self.tilesize = 49
 	self.tilemap = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 	self.valid_power_idx = { 1, 2, 3, 4, 5, 12, 13, 14, 15, 16 }
 	self:spawnPower()
@@ -12,15 +12,30 @@ function GameRoom:new()
 	self.pacman = Pacman(self:getTileX(8), 100 + self.tilesize / 8, self.tilesize / 3)
 	self.ghost = Ghost(self:getTileX(16), 100 + self.tilesize / 8, self.tilesize / 3)
 
+	self.game_over = false
+	self.font = love.graphics.newFont(24)
+	self.font_color = { 255, 255, 255 }
 	self.creation_time = love.timer.getTime()
 end
 
 function GameRoom:update(dt)
+	if self.game_over then
+		return
+	end
+	if self.pacman.x == self.ghost.x then
+		self.game_over = true
+	end
 	self.pacman:update(dt)
-	self.ghost:update(dt)
+	self.ghost:update(dt, self.pacman.x)
 end
 
 function GameRoom:draw()
+	if self.game_over then
+		love.graphics.setFont(self.font)
+		love.graphics.setColor(love.math.colorFromBytes(unpack(self.point_color)))
+		love.graphics.print("You lost! Press R to try again.", 100, 200)
+	end
+
 	for i, tile in ipairs(self.tilemap) do
 		local x = self:getTileX(i)
 		local y = 100

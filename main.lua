@@ -39,6 +39,11 @@ function love.load()
 	recursiveEnumerate("rooms", room_files)
 	requireFiles(room_files)
 
+	WindowWidth, WindowHeight = love.graphics.getDimensions()
+
+	Control:bind("toggleDirection", "press space")
+	Control:bind("restart", "press r")
+
 	CurrentRoom = nil
 	gotoRoom("GameRoom")
 end
@@ -46,6 +51,9 @@ end
 function love.update(dt)
 	if CurrentRoom then
 		CurrentRoom:update(dt)
+	end
+	if Control.restart then
+		gotoRoom("GameRoom")
 	end
 	Lynput.update_(dt)
 end
