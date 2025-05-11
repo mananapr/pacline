@@ -11,8 +11,13 @@ function Ghost:new(x, y, radius)
 	self.creation_time = love.timer.getTime()
 end
 
-function Ghost:update(dt)
+function Ghost:update(dt, pacmanX)
 	self.x = self.x + self.direction
+	if self.x < pacmanX then
+		self.direction = 1
+	elseif self.x > pacmanX then
+		self.direction = -1
+	end
 end
 
 function Ghost:draw()
