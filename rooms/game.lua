@@ -80,8 +80,9 @@ function GameRoom:checkCollision()
 	if math.abs(self.pacman.x - self.ghost.x) <= 2 * (self.tilesize / 3) then
 		if not self.ghost.vulnerable and not self.ghost.dead then
 			self.game_over = true
-		else
-			self.ghost:makeDead()
+		elseif not self.ghost.dead then
+			local collision_point = self.ghost.x
+			self.ghost:makeDead(collision_point)
 		end
 	end
 end

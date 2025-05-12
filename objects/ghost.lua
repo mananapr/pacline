@@ -28,29 +28,30 @@ end
 function Ghost:update(dt, pacmanX)
 	local now = love.timer.getTime()
 	self.vulnerable = self.vulnerable_until and now < self.vulnerable_until
-
 	self.flash = self.vulnerable_until and self.vulnerable_until - now <= 1 and self.vulnerable_until - now > 0
 
-	if not self.vulnerable then
-		if self.x < pacmanX then
-			self.direction = math.abs(self.direction)
-		elseif self.x > pacmanX then
-			self.direction = -math.abs(self.direction)
+	if self.dead then
+		if math.abs(self.x - self.go_to_point) < 1 then
+			self.x = self.go_to_point
+			self.dead = false
+		else
+			self.direction = self.x < self.go_to_point and 1 or -1
+			self.x = self.x + (self.direction * self.speed)
 		end
 	else
-		if self.x < pacmanX then
-			self.direction = -math.abs(self.direction)
-		elseif self.x > pacmanX then
-			self.direction = math.abs(self.direction)
+		if not self.vulnerable then
+			self.direction = (self.x < pacmanX) and math.abs(self.direction) or -math.abs(self.direction)
+		else
+			self.direction = (self.x < pacmanX) and -math.abs(self.direction) or math.abs(self.direction)
 		end
-	end
 
-	if (self.x + self.direction) > (WindowWidth - self.radius) then
-		self.x = WindowWidth - self.radius
-	elseif (self.x + self.direction) < self.radius then
-		self.x = self.radius
-	else
-		self.x = self.x + (self.direction * self.speed)
+		if (self.x + self.direction) > (WindowWidth - self.radius) then
+			self.x = WindowWidth - self.radius
+		elseif (self.x + self.direction) < self.radius then
+			self.x = self.radius
+		else
+			self.x = self.x + (self.direction * self.speed)
+		end
 	end
 
 	self.timer:update(dt)
@@ -84,7 +85,9 @@ function Ghost:makeVulnerable()
 	end
 end
 
-function Ghost:makeDead()
+function Ghost:makeDead(collision_point)
 	self.dead = true
 	self.vulnerable_until = nil
+
+	self.go_to_point = collision_point > WindowWidth / 2 and self.radius or WindowWidth - self.radius
 end
