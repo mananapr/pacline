@@ -8,8 +8,8 @@ function GameRoom:new()
 	self.power_color = { 255, 255, 255 }
 	self.font_color = { 255, 255, 255 }
 
-	self.speed = 2
-	self.pacman = Pacman(self:getTileX(8), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed + 2)
+	self.speed = math.floor(self.tilesize / 10)
+	self.pacman = Pacman(self:getTileX(8), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed)
 	self.ghost = Ghost(self:getTileX(16), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed)
 	self.border_top = Border(0, (WindowHeight / 2) - self.tilesize / 2)
 	self.border_bot = Border(0, (WindowHeight / 2) + self.tilesize / 2 + 15)
@@ -66,7 +66,6 @@ function GameRoom:initMap()
 	self.tilemap = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 	self.valid_power_idx = { 1, 2, 3, 4, 5, 12, 13, 14, 15, 16 }
 	self.remaining_points = #self.tilemap
-	self.remaining_points = 16
 	local idx = self.valid_power_idx[love.math.random(#self.valid_power_idx)]
 	self.tilemap[idx] = 2
 end
