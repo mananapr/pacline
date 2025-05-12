@@ -7,14 +7,19 @@ function Ghost:new(x, y, radius, speed)
 
 	self.speed = speed + 0.5
 	self.direction = -1
+
 	self.vulnerable = false
 	self.vulnerable_time = 3
+
 	self.flash = false
 	self.flash_frequency = 15
+
+	self.dead = false
 
 	self.color = { 255, 0, 0 }
 	self.flash_color = { 255, 255, 255 }
 	self.vulnerable_color = { 0, 0, 255 }
+	self.dead_color = { 255, 0, 0, 100 }
 
 	self.timer = Timer()
 	self.creation_time = love.timer.getTime()
@@ -62,6 +67,8 @@ function Ghost:draw()
 		else
 			love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.vulnerable_color)))
 		end
+	elseif self.dead then
+		love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.dead_color)))
 	else
 		love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.color)))
 	end
@@ -75,4 +82,9 @@ function Ghost:makeVulnerable()
 	else
 		self.vulnerable_until = now + 3
 	end
+end
+
+function Ghost:makeDead()
+	self.dead = true
+	self.vulnerable_until = nil
 end

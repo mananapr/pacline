@@ -13,7 +13,7 @@ function GameRoom:new()
 	self.font_color = { 255, 255, 255 }
 
 	self.speed = 2
-	self.pacman = Pacman(self:getTileX(8), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed)
+	self.pacman = Pacman(self:getTileX(8), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed + 2)
 	self.ghost = Ghost(self:getTileX(16), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed)
 	self.border_top = Border(0, (WindowHeight / 2) - self.tilesize / 2)
 	self.border_bot = Border(0, (WindowHeight / 2) + self.tilesize / 2 + 15)
@@ -78,8 +78,10 @@ end
 
 function GameRoom:checkCollision()
 	if math.abs(self.pacman.x - self.ghost.x) <= 2 * (self.tilesize / 3) then
-		if not self.ghost.vulnerable then
+		if not self.ghost.vulnerable and not self.ghost.dead then
 			self.game_over = true
+		else
+			self.ghost:makeDead()
 		end
 	end
 end
@@ -100,7 +102,7 @@ function GameRoom:checkPoints()
 			if tile ~= 0 then
 				self.tilemap[i] = 0
 				self.remaining_points = self.remaining_points - 1
-				if tile == 2 then
+				if tile == 2 and not self.ghost.dead then
 					self.ghost:makeVulnerable()
 				end
 				if self.remaining_points == 0 then
