@@ -2,21 +2,23 @@ GameRoom = Object:extend()
 
 function GameRoom:new()
 	self.tilesize = WindowWidth / 16
+	self.remaining_points = 16
 	self.tilemap = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 	self.valid_power_idx = { 1, 2, 3, 4, 5, 12, 13, 14, 15, 16 }
-	self:spawnPower()
+	self:initMap()
 
+	self.font = love.graphics.newFont(24)
 	self.point_color = { 255, 251, 0 }
 	self.power_color = { 255, 255, 255 }
+	self.font_color = { 255, 255, 255 }
 
-	self.pacman = Pacman(self:getTileX(8), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3)
-	self.ghost = Ghost(self:getTileX(16), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3)
+	self.speed = 2
+	self.pacman = Pacman(self:getTileX(8), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed + 2)
+	self.ghost = Ghost(self:getTileX(16), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed)
 	self.border_top = Border(0, (WindowHeight / 2) - self.tilesize / 2)
 	self.border_bot = Border(0, (WindowHeight / 2) + self.tilesize / 2 + 15)
 
 	self.game_over = false
-	self.font = love.graphics.newFont(24)
-	self.font_color = { 255, 255, 255 }
 	self.creation_time = love.timer.getTime()
 end
 
@@ -24,9 +26,10 @@ function GameRoom:update(dt)
 	if self.game_over then
 		return
 	end
-	if math.abs(self.pacman.x - self.ghost.x) <= 2 * (self.tilesize / 3) then
-		self.game_over = true
-	end
+
+	self:checkCollision()
+	self:checkPoints()
+
 	self.pacman:update(dt)
 	self.ghost:update(dt, self.pacman.x)
 end
@@ -44,13 +47,14 @@ function GameRoom:draw()
 	for i, tile in ipairs(self.tilemap) do
 		local x = self:getTileX(i)
 		local y = WindowHeight / 2
+		local point_size = self.tilesize / 4
 
 		if tile == 1 then
 			love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.point_color)))
-			love.graphics.rectangle("fill", x + self.tilesize / 2, y, self.tilesize / 4, self.tilesize / 4)
+			love.graphics.rectangle("fill", x + ((self.tilesize - point_size) / 2), y, point_size, point_size)
 		elseif tile == 2 then
 			love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.power_color)))
-			love.graphics.rectangle("fill", x + self.tilesize / 2, y, self.tilesize / 4, self.tilesize / 4)
+			love.graphics.rectangle("fill", x + ((self.tilesize - point_size) / 2), y, point_size, point_size)
 		end
 	end
 
@@ -61,11 +65,51 @@ function GameRoom:draw()
 	self.ghost:draw()
 end
 
-function GameRoom:spawnPower()
+function GameRoom:initMap()
+	self.tilemap = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+	self.remaining_points = 16
 	local idx = self.valid_power_idx[love.math.random(#self.valid_power_idx)]
 	self.tilemap[idx] = 2
 end
 
 function GameRoom:getTileX(idx)
 	return (idx - 1) * self.tilesize
+end
+
+function GameRoom:checkCollision()
+	if math.abs(self.pacman.x - self.ghost.x) <= 2 * (self.tilesize / 3) then
+		if not self.ghost.vulnerable and not self.ghost.dead then
+			self.game_over = true
+		elseif not self.ghost.dead then
+			local collision_point = self.ghost.x
+			self.ghost:makeDead(collision_point)
+		end
+	end
+end
+
+function GameRoom:checkPoints()
+	for i, tile in ipairs(self.tilemap) do
+		local tile_x = self:getTileX(i)
+		local tile_y = WindowHeight / 2
+		local tile_center_x = tile_x + self.tilesize / 2
+		local tile_center_y = tile_y
+
+		local dx = math.abs(self.pacman.x - tile_center_x)
+		local dy = math.abs(self.pacman.y - tile_center_y)
+
+		local hit_radius = self.tilesize / 3
+
+		if dx < hit_radius and dy < hit_radius then
+			if tile ~= 0 then
+				self.tilemap[i] = 0
+				self.remaining_points = self.remaining_points - 1
+				if tile == 2 and not self.ghost.dead then
+					self.ghost:makeVulnerable()
+				end
+				if self.remaining_points == 0 then
+					self:initMap()
+				end
+			end
+		end
+	end
 end
