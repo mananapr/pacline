@@ -1,10 +1,6 @@
 GameRoom = Object:extend()
 
 function GameRoom:new()
-	self.tilesize = WindowWidth / 16
-	self.remaining_points = 16
-	self.tilemap = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
-	self.valid_power_idx = { 1, 2, 3, 4, 5, 12, 13, 14, 15, 16 }
 	self:initMap()
 
 	self.font = love.graphics.newFont(24)
@@ -66,7 +62,10 @@ function GameRoom:draw()
 end
 
 function GameRoom:initMap()
+	self.tilesize = WindowWidth / 16
 	self.tilemap = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+	self.valid_power_idx = { 1, 2, 3, 4, 5, 12, 13, 14, 15, 16 }
+	self.remaining_points = #self.tilemap
 	self.remaining_points = 16
 	local idx = self.valid_power_idx[love.math.random(#self.valid_power_idx)]
 	self.tilemap[idx] = 2

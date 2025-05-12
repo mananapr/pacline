@@ -6,7 +6,7 @@
 
 [TODO](https://github.com/mananapr/pacline/issues)
 
-### Links
+### links
 - [hump](https://github.com/vrld/hump)
 - [classic](https://github.com/rxi/classic)
 - [lynput](https://github.com/Lydzje/lynput/)
