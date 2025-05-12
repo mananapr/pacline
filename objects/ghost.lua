@@ -7,6 +7,7 @@ function Ghost:new(x, y, radius, speed)
 	self.speed = speed + 0.5
 	self.direction = -1
 	self.vulnerable = false
+	self.vulnerable_time = 3
 	self.color = { 255, 0, 0 }
 	self.vulnerable_color = { 0, 0, 255 }
 
@@ -15,6 +16,9 @@ function Ghost:new(x, y, radius, speed)
 end
 
 function Ghost:update(dt, pacmanX)
+	local now = love.timer.getTime()
+	self.vulnerable = self.vulnerable_until and now < self.vulnerable_until
+
 	if not self.vulnerable then
 		if self.x < pacmanX then
 			self.direction = math.abs(self.direction)
@@ -50,11 +54,10 @@ function Ghost:draw()
 end
 
 function Ghost:makeVulnerable()
-	self.vulnerable = true
-	local original_speed = self.speed
-	self.speed = original_speed - 0.6
-	self.timer:after(3, function()
-		self.vulnerable = false
-		self.speed = original_speed
-	end)
+	local now = love.timer.getTime()
+	if self.vulnerable_until and self.vulnerable_until > now then
+		self.vulnerable_until = self.vulnerable_until + self.vulnerable_time
+	else
+		self.vulnerable_until = now + 3
+	end
 end
