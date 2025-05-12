@@ -5,7 +5,7 @@ function Ghost:new(x, y, radius, speed)
 	self.y = y
 	self.radius = radius
 
-	self.speed = speed + 0.5
+	self.speed = speed
 	self.direction = -1
 
 	self.vulnerable = false
@@ -19,7 +19,7 @@ function Ghost:new(x, y, radius, speed)
 	self.color = { 255, 0, 0 }
 	self.flash_color = { 255, 255, 255 }
 	self.vulnerable_color = { 0, 0, 255 }
-	self.dead_color = { 255, 0, 0, 100 }
+	self.dead_color = { 200, 200, 200, 50 }
 
 	self.timer = Timer()
 	self.creation_time = love.timer.getTime()
@@ -28,20 +28,24 @@ end
 function Ghost:update(dt, pacmanX)
 	local now = love.timer.getTime()
 	self.vulnerable = self.vulnerable_until and now < self.vulnerable_until
-	self.flash = self.vulnerable_until and self.vulnerable_until - now <= 1 and self.vulnerable_until - now > 0
+	self.flash = self.vulnerable_until and self.vulnerable_until - now <= 0.75 and self.vulnerable_until - now > 0
 
+	local effective_speed = self.speed
 	if self.dead then
-		if math.abs(self.x - self.go_to_point) < 1 then
+		effective_speed = self.speed * 1.2
+		if math.abs(self.x - self.go_to_point) < self.radius then
 			self.x = self.go_to_point
 			self.dead = false
 		else
 			self.direction = self.x < self.go_to_point and 1 or -1
-			self.x = self.x + (self.direction * self.speed)
+			self.x = self.x + (self.direction * effective_speed)
 		end
 	else
 		if not self.vulnerable then
+			effective_speed = self.speed * 1.1
 			self.direction = (self.x < pacmanX) and math.abs(self.direction) or -math.abs(self.direction)
 		else
+			effective_speed = self.speed * 0.7
 			self.direction = (self.x < pacmanX) and -math.abs(self.direction) or math.abs(self.direction)
 		end
 
@@ -50,7 +54,7 @@ function Ghost:update(dt, pacmanX)
 		elseif (self.x + self.direction) < self.radius then
 			self.x = self.radius
 		else
-			self.x = self.x + (self.direction * self.speed)
+			self.x = self.x + (self.direction * effective_speed)
 		end
 	end
 
@@ -81,7 +85,7 @@ function Ghost:makeVulnerable()
 	if self.vulnerable_until and self.vulnerable_until > now then
 		self.vulnerable_until = self.vulnerable_until + self.vulnerable_time
 	else
-		self.vulnerable_until = now + 3
+		self.vulnerable_until = now + 2
 	end
 end
 
