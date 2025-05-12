@@ -28,7 +28,7 @@ end
 function Ghost:update(dt, pacmanX)
 	local now = love.timer.getTime()
 	self.vulnerable = self.vulnerable_until and now < self.vulnerable_until
-	self.flash = self.vulnerable_until and self.vulnerable_until - now <= 0.75 and self.vulnerable_until - now > 0
+	self.flash = self.vulnerable_until and self.vulnerable_until - now <= 0.5 and self.vulnerable_until - now > 0
 
 	local effective_speed = self.speed
 	if self.dead then
@@ -80,12 +80,17 @@ function Ghost:draw()
 	love.graphics.circle("fill", self.x, self.y, self.radius)
 end
 
-function Ghost:makeVulnerable()
+function Ghost:makeVulnerable(multiplier)
+	local base_time = 2.25
+	local decay_factor = 0.10
+	local min_time = 1
+	local dynamic_time = math.max(base_time - decay_factor * multiplier, min_time)
+
 	local now = love.timer.getTime()
 	if self.vulnerable_until and self.vulnerable_until > now then
 		self.vulnerable_until = self.vulnerable_until + self.vulnerable_time
 	else
-		self.vulnerable_until = now + 2
+		self.vulnerable_until = now + dynamic_time
 	end
 end
 
