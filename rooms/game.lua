@@ -1,6 +1,9 @@
 GameRoom = Object:extend()
 
 function GameRoom:new()
+	self.score = 0
+	self.multiplier = 0
+
 	self:initMap()
 
 	self.font = love.graphics.newFont(24)
@@ -22,6 +25,11 @@ function GameRoom:update(dt)
 	if self.game_over then
 		return
 	end
+
+	local new_speed = self.speed * (1 + math.log(self.multiplier + 1) * 0.1)
+	new_speed = math.min(new_speed, self.tilesize / 3)
+	self.pacman.speed = new_speed
+	self.ghost.speed = new_speed
 
 	self:checkCollision()
 	self:checkPoints()
@@ -54,6 +62,11 @@ function GameRoom:draw()
 		end
 	end
 
+	love.graphics.setFont(self.font)
+	love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.font_color)))
+	love.graphics.print(tostring(self.score), 10, 10)
+	love.graphics.print("x" .. self.multiplier, 10, 40)
+
 	self.border_top:draw()
 	self.border_bot:draw()
 
@@ -68,6 +81,7 @@ function GameRoom:initMap()
 	self.remaining_points = #self.tilemap
 	local idx = self.valid_power_idx[love.math.random(#self.valid_power_idx)]
 	self.tilemap[idx] = 2
+	self.multiplier = self.multiplier + 1
 end
 
 function GameRoom:getTileX(idx)
@@ -81,6 +95,7 @@ function GameRoom:checkCollision()
 		elseif not self.ghost.dead then
 			local collision_point = self.ghost.x
 			self.ghost:makeDead(collision_point)
+			self.multiplier = self.multiplier + 1
 		end
 	end
 end
@@ -101,8 +116,9 @@ function GameRoom:checkPoints()
 			if tile ~= 0 then
 				self.tilemap[i] = 0
 				self.remaining_points = self.remaining_points - 1
+				self.score = self.score + self.multiplier
 				if tile == 2 and not self.ghost.dead then
-					self.ghost:makeVulnerable()
+					self.ghost:makeVulnerable(self.multiplier)
 				end
 				if self.remaining_points == 0 then
 					self:initMap()
