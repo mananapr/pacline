@@ -1,9 +1,5 @@
 Object = require("libs/classic")
-Lynput = require("libs/lynput")
 Timer = require("libs/hump/timer")
-
-Control = Lynput()
-Lynput.load_key_callbacks()
 
 table.unpack = table.unpack or unpack
 
@@ -28,7 +24,7 @@ local function requireFiles(files)
 	end
 end
 
-local function gotoRoom(room_type, ...)
+function GotoRoom(room_type, ...)
 	CurrentRoom = _G[room_type](...)
 end
 
@@ -43,25 +39,34 @@ function love.load()
 
 	WindowWidth, WindowHeight = love.graphics.getDimensions()
 
-	Control:bind("toggleDirection", "press space")
-	Control:bind("restart", "press r")
-
 	CurrentRoom = nil
-	gotoRoom("GameRoom")
+	GotoRoom("MenuRoom")
 end
 
 function love.update(dt)
 	if CurrentRoom then
 		CurrentRoom:update(dt)
 	end
-	if Control.restart then
-		gotoRoom("GameRoom")
-	end
-	Lynput.update_(dt)
 end
 
 function love.draw()
 	if CurrentRoom then
 		CurrentRoom:draw()
+	end
+end
+
+function love.keypressed(key)
+	if key == "return" then
+		if CurrentRoom and CurrentRoom.startGame then
+			CurrentRoom:startGame()
+		end
+	elseif key == "space" then
+		if CurrentRoom and CurrentRoom.toggleDirection then
+			CurrentRoom:toggleDirection()
+		end
+	elseif key == "r" then
+		if CurrentRoom and CurrentRoom.restart then
+			CurrentRoom:restart()
+		end
 	end
 end
