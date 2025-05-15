@@ -70,3 +70,17 @@ function love.keypressed(key)
 		end
 	end
 end
+
+function love.mousepressed(x, y, button)
+	if CurrentRoom then
+		if CurrentRoom.startGame then
+			CurrentRoom:startGame()
+		end
+		if CurrentRoom.toggleDirection then
+			CurrentRoom:toggleDirection()
+		end
+		if CurrentRoom.restart then
+			CurrentRoom:restart()
+		end
+	end
+end

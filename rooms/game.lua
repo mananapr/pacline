@@ -133,5 +133,7 @@ function GameRoom:toggleDirection()
 end
 
 function GameRoom:restart()
-	GotoRoom("GameRoom")
+	if self.game_over then
+		GotoRoom("GameRoom")
+	end
 end
