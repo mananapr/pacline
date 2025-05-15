@@ -127,3 +127,11 @@ function GameRoom:checkPoints()
 		end
 	end
 end
+
+function GameRoom:toggleDirection()
+	self.pacman:toggleDirection()
+end
+
+function GameRoom:restart()
+	GotoRoom("GameRoom")
+end

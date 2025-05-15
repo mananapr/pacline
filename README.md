@@ -9,4 +9,3 @@
 ### links
 - [hump](https://github.com/vrld/hump)
 - [classic](https://github.com/rxi/classic)
-- [lynput](https://github.com/Lydzje/lynput/)

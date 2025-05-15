@@ -11,10 +11,6 @@ function Pacman:new(x, y, radius, speed)
 end
 
 function Pacman:update(dt)
-	if Control.toggleDirection then
-		self.direction = -self.direction
-	end
-
 	self.x = self.x + (self.direction * self.speed)
 
 	if self.x - self.radius > WindowWidth then
@@ -27,4 +23,8 @@ end
 function Pacman:draw()
 	love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.color)))
 	love.graphics.circle("fill", self.x, self.y, self.radius)
+end
+
+function Pacman:toggleDirection()
+	self.direction = -self.direction
 end
