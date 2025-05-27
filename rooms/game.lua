@@ -1,6 +1,33 @@
+local function getCellRect(world, cx, cy)
+  local cellSize = world.cellSize
+  local l, t = world:toWorld(cx, cy)
+  return l, t, cellSize, cellSize
+end
+
+local function bump_debug(world)
+  local cellSize = world.cellSize
+  local font = love.graphics.getFont()
+  local fontHeight = font:getHeight()
+  local topOffset = (cellSize - fontHeight) / 2
+  for cy, row in pairs(world.rows) do
+    for cx, cell in pairs(row) do
+      local l, t, w, h = getCellRect(world, cx, cy)
+      local intensity = (cell.itemCount * 12 + 16) / 256
+      love.graphics.setColor(1, 1, 1, intensity)
+      love.graphics.rectangle("fill", l, t, w, h)
+      love.graphics.setColor(1, 1, 1, 0.25)
+      love.graphics.printf(cell.itemCount, l, t + topOffset, cellSize, "center")
+      love.graphics.setColor(1, 1, 1, 0.04)
+      love.graphics.rectangle("line", l, t, w, h)
+    end
+  end
+end
+
 GameRoom = Object:extend()
 
 function GameRoom:new()
+  self.world = Bump.newWorld(WindowWidth / 16)
+
   self.score = 0
   self.multiplier = 0
 
@@ -12,8 +39,14 @@ function GameRoom:new()
   self.font_color = { 255, 255, 255 }
 
   self.speed = math.floor(self.tilesize / 10)
-  self.pacman = Pacman(self:getTileX(8), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed)
-  self.ghost = Ghost(self:getTileX(16), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed)
+  self.pacman =
+    Pacman(self:getTileX(8), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed, self.world)
+  self.ghost =
+    Ghost(self:getTileX(1), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed, self.world)
+
+  self.world:add(self.pacman, self.pacman.x, WindowHeight / 2, 2 * self.tilesize / 3, 2 * self.tilesize / 3)
+  self.world:add(self.ghost, self.ghost.x, WindowHeight / 2, 2 * self.tilesize / 3, 2 * self.tilesize / 3)
+
   self.border_top = Border(0, (WindowHeight / 2) - self.tilesize / 2)
   self.border_bot = Border(0, (WindowHeight / 2) + self.tilesize)
 
@@ -50,6 +83,10 @@ function GameRoom:update(dt)
 end
 
 function GameRoom:draw()
+  if DebugMode then
+    bump_debug(self.world)
+  end
+
   if self.game_over then
     love.graphics.setFont(self.font)
     love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.font_color)))

@@ -1,7 +1,10 @@
 Object = require("libs/classic")
 Timer = require("libs/hump/timer")
+Bump = require("libs/bump")
 
 table.unpack = table.unpack or unpack
+
+DebugMode = false
 
 local function recursiveEnumerate(folder, file_list)
   local items = love.filesystem.getDirectoryItems(folder)
@@ -38,6 +41,15 @@ function love.load()
   requireFiles(room_files)
 
   WindowWidth, WindowHeight = love.graphics.getDimensions()
+
+  if arg then
+    for _, v in ipairs(arg) do
+      if v == "-debug" then
+        DebugMode = true
+        break
+      end
+    end
+  end
 
   CurrentRoom = nil
   GotoRoom("MenuRoom")

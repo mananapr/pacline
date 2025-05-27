@@ -9,6 +9,7 @@
 ### libraries
 - [hump](https://github.com/vrld/hump)
 - [classic](https://github.com/rxi/classic)
+- [bump](https://github.com/kikito/bump.lua)
 
 ### assets
 - [keys](https://blatfan.itch.io/blatkeys)
