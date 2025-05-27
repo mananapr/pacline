@@ -14,7 +14,7 @@ function GameRoom:new()
   self.power_color = { 255, 255, 255 }
   self.font_color = { 255, 255, 255 }
 
-  self.speed = math.floor(self.tilesize / 10)
+  self.speed = math.floor(self.tilesize) * 5
   self.pacman =
     Pacman(self.map:getTileX(8), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed, self.world)
   self.ghost =
@@ -42,7 +42,7 @@ function GameRoom:update(dt)
     return
   end
 
-  local new_speed = self.speed * (1 + math.log(self.multiplier + 1) * 0.1)
+  local new_speed = self.speed * (1 + math.log(self.multiplier + 1) * 0.1) * dt
   new_speed = math.min(new_speed, self.tilesize / 3)
   self.pacman.speed = new_speed
   self.ghost.speed = new_speed
