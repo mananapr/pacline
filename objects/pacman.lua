@@ -27,15 +27,23 @@ function Pacman:new(x, y, radius, speed, world)
   self.x = x
   self.y = y
   self.radius = radius
+
   self.tag = "pacman"
   self.world = world
+
   self.speed = speed
   self.direction = 1
-  self.color = { 224, 222, 105 }
+
+  self.framesRight = Res.sprite.pacman.right
+  self.framesLeft = Res.sprite.pacman.left
+  self.framesCurrent = self.framesRight
+  self.frame = 1
+  self.frameTimer = 0
+  self.anim_speed = 0.08
+
   self.creation_time = love.timer.getTime()
 end
 
----@diagnostic disable-next-line: unused-local
 function Pacman:update(dt, onEat, onCollision)
   local targetX = self.x + (self.direction * self.speed)
   local targetY = self.y
@@ -58,13 +66,22 @@ function Pacman:update(dt, onEat, onCollision)
     self.world:update(self, WindowWidth + self.radius, self.y)
     self.x = WindowWidth + self.radius
   end
+
+  self.frameTimer = self.frameTimer + dt
+  if self.frameTimer >= self.anim_speed then
+    self.frameTimer = self.frameTimer - self.anim_speed
+    self.frame = self.frame % #self.framesCurrent + 1
+  end
 end
 
 function Pacman:draw()
-  love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.color)))
-  love.graphics.circle("fill", self.x, self.y, self.radius)
+  local sprite = self.framesCurrent[self.frame]
+  local ox, oy = sprite:getWidth() / 2, sprite:getHeight() / 2
+  love.graphics.setColor(1, 1, 1)
+  love.graphics.draw(sprite, self.x, self.y, 0, 1.5, 1.5, ox, oy)
 end
 
 function Pacman:toggleDirection()
   self.direction = -self.direction
+  self.framesCurrent = (self.direction == 1) and self.framesRight or self.framesLeft
 end

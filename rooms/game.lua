@@ -9,7 +9,7 @@ function GameRoom:new()
   self.multiplier = 0
   self.multiplier = self.multiplier + 1
 
-  self.font = love.graphics.newFont(24)
+  self.font = Res.font.lg
   self.point_color = { 255, 251, 0 }
   self.power_color = { 255, 255, 255 }
   self.font_color = { 255, 255, 255 }
@@ -20,8 +20,8 @@ function GameRoom:new()
   self.ghost =
     Ghost(self.map:getTileX(16), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed, self.world)
 
-  self.world:add(self.pacman, self.pacman.x, WindowHeight / 2, 2 * self.tilesize / 3, 2 * self.tilesize / 3)
-  self.world:add(self.ghost, self.ghost.x, WindowHeight / 2, 2 * self.tilesize / 3, 2 * self.tilesize / 3)
+  self.world:add(self.pacman, self.pacman.x, self.pacman.y, 2 * self.pacman.radius, 2 * self.pacman.radius)
+  self.world:add(self.ghost, self.ghost.x, self.ghost.y, 2 * self.ghost.radius, 2 * self.ghost.radius)
 
   self.border_top = Border(0, (WindowHeight / 2) - self.tilesize / 2)
   self.border_bot = Border(0, (WindowHeight / 2) + self.tilesize)
@@ -91,16 +91,24 @@ function GameRoom:onCollision()
   if not self.ghost.vulnerable and not self.ghost.dead then
     self.game_over = true
     self.game_over_time = nil
+    Res.sound.gameover:play()
   elseif not self.ghost.dead then
     local collision_point = self.ghost.x
     self.ghost:makeDead(collision_point)
     self.multiplier = self.multiplier + 1
+    Res.sound.vulnerable:play()
   end
 end
 
 function GameRoom:eatPoint(point)
   self.map:consumePoint(point)
   self.score = self.score + self.multiplier
+
+  if point.tag == "powerpoint" then
+    Res.sound.powerpoint:play()
+  else
+    Res.sound.point:play()
+  end
 
   if point.tag == "powerpoint" and not self.ghost.dead then
     self.ghost:makeVulnerable(self.multiplier)

@@ -23,25 +23,19 @@ function Ghost:new(x, y, radius, speed, world)
   self.x = x
   self.y = y
   self.radius = radius
-
   self.world = world
   self.tag = "ghost"
-
   self.speed = speed
-  self.direction = -1
 
+  self.direction = -1
   self.vulnerable = false
   self.vulnerable_time = 3
-
-  self.flash = false
-  self.flash_frequency = 15
-
   self.dead = false
 
-  self.color = { 255, 0, 0 }
-  self.flash_color = { 255, 255, 255 }
-  self.vulnerable_color = { 0, 0, 255 }
-  self.dead_color = { 200, 200, 200, 50 }
+  self.flash_fps = 15
+
+  self.vulnerable_until = nil
+  self.go_to_point = nil
 
   self.timer = Timer()
   self.creation_time = love.timer.getTime()
@@ -50,7 +44,7 @@ end
 function Ghost:update(dt, pacmanX)
   local now = love.timer.getTime()
   self.vulnerable = self.vulnerable_until and now < self.vulnerable_until
-  self.flash = self.vulnerable_until and self.vulnerable_until - now <= 0.5 and self.vulnerable_until - now > 0
+  self.flash = self.vulnerable_until and (self.vulnerable_until - now <= 0.5) and (self.vulnerable_until - now > 0)
 
   local effective_speed = self.speed
   if self.dead then
@@ -88,23 +82,33 @@ function Ghost:update(dt, pacmanX)
   self.timer:update(dt)
 end
 
+local function drawCentered(img, x, y)
+  local ox, oy = img:getWidth() / 2, img:getHeight() / 2
+  love.graphics.draw(img, x, y, 0, 1.5, 1.5, ox, oy)
+end
+
 function Ghost:draw()
-  if self.vulnerable then
+  local sprite
+  local alpha = 1
+
+  if self.dead then
+    sprite = Res.sprite.ghost.active
+    alpha = 0.45
+  elseif self.vulnerable then
+    sprite = Res.sprite.ghost.vulnerable
     if self.flash then
-      if math.floor(love.timer.getTime() * self.flash_frequency) % 2 == 0 then
-        love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.flash_color)))
-      else
-        love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.vulnerable_color)))
+      if math.floor(love.timer.getTime() * self.flash_fps) % 2 == 0 then
+        love.graphics.setColor(0, 0, 0, 1)
+        drawCentered(sprite, self.x, self.y)
+        return
       end
-    else
-      love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.vulnerable_color)))
     end
-  elseif self.dead then
-    love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.dead_color)))
   else
-    love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.color)))
+    sprite = Res.sprite.ghost.active
   end
-  love.graphics.circle("fill", self.x, self.y, self.radius)
+
+  love.graphics.setColor(1, 1, 1, alpha)
+  drawCentered(sprite, self.x, self.y)
 end
 
 function Ghost:makeVulnerable(multiplier)

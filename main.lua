@@ -1,6 +1,7 @@
 Object = require("libs/classic")
 Timer = require("libs/hump/timer")
 Bump = require("libs/bump")
+Res = require("assets")
 
 table.unpack = table.unpack or unpack
 
