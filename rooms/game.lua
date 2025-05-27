@@ -1,12 +1,13 @@
 GameRoom = Object:extend()
 
 function GameRoom:new()
-  self.world = Bump.newWorld(WindowWidth / 16)
+  self.tilesize = WindowWidth / 16
+  self.world = Bump.newWorld(self.tilesize)
+  self.map = Map(self.world, self.tilesize, WindowHeight)
 
   self.score = 0
   self.multiplier = 0
-
-  self:initMap()
+  self.multiplier = self.multiplier + 1
 
   self.font = love.graphics.newFont(24)
   self.point_color = { 255, 251, 0 }
@@ -15,9 +16,9 @@ function GameRoom:new()
 
   self.speed = math.floor(self.tilesize / 10)
   self.pacman =
-    Pacman(self:getTileX(8), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed, self.world)
+    Pacman(self.map:getTileX(8), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed, self.world)
   self.ghost =
-    Ghost(self:getTileX(16), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed, self.world)
+    Ghost(self.map:getTileX(16), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed, self.world)
 
   self.world:add(self.pacman, self.pacman.x, WindowHeight / 2, 2 * self.tilesize / 3, 2 * self.tilesize / 3)
   self.world:add(self.ghost, self.ghost.x, WindowHeight / 2, 2 * self.tilesize / 3, 2 * self.tilesize / 3)
@@ -46,9 +47,7 @@ function GameRoom:update(dt)
   self.pacman.speed = new_speed
   self.ghost.speed = new_speed
 
-  for _, point in ipairs(self.points) do
-    point:update(dt)
-  end
+  self.map:update()
 
   self.pacman:update(dt, function(point)
     self:eatPoint(point)
@@ -74,9 +73,7 @@ function GameRoom:draw()
     love.graphics.print(txt, (WindowWidth - txt_width) / 2, ((WindowHeight - txt_height) / 2) + 120)
   end
 
-  for _, point in ipairs(self.points) do
-    point:draw()
-  end
+  self.map:draw()
 
   love.graphics.setFont(self.font)
   love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.font_color)))
@@ -88,39 +85,6 @@ function GameRoom:draw()
 
   self.pacman:draw()
   self.ghost:draw()
-end
-
-function GameRoom:initMap()
-  self.tilesize = WindowWidth / 16
-  self.tilemap = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
-  self.valid_power_idx = { 1, 2, 3, 4, 5, 12, 13, 14, 15, 16 }
-  self.remaining_points = #self.tilemap
-  local idx = self.valid_power_idx[love.math.random(#self.valid_power_idx)]
-  self.tilemap[idx] = 2
-  self.multiplier = self.multiplier + 1
-
-  self.points = {}
-  for i, tile in ipairs(self.tilemap) do
-    if tile == 1 then
-      local point_size = self.tilesize / 4
-      local x = self:getTileX(i) + ((self.tilesize - point_size) / 2)
-      local y = ((WindowHeight - point_size) / 2) + 5
-      local p = Point(i, x, y, point_size)
-      table.insert(self.points, p)
-      self.world:add(p, p.x, p.y, point_size, point_size)
-    elseif tile == 2 then
-      local point_size = self.tilesize / 6
-      local x = self:getTileX(i) + ((self.tilesize - point_size) / 2)
-      local y = ((WindowHeight - point_size) / 2) + 5
-      local p = PowerPoint(i, x, y, point_size)
-      table.insert(self.points, p)
-      self.world:add(p, p.x, p.y, point_size, point_size)
-    end
-  end
-end
-
-function GameRoom:getTileX(idx)
-  return (idx - 1) * self.tilesize
 end
 
 function GameRoom:onCollision()
@@ -135,17 +99,16 @@ function GameRoom:onCollision()
 end
 
 function GameRoom:eatPoint(point)
-  self.world:remove(point)
-  point.active = false
-  self.tilemap[point.idx] = 0
-  self.remaining_points = self.remaining_points - 1
+  self.map:consumePoint(point)
   self.score = self.score + self.multiplier
 
   if point.tag == "powerpoint" and not self.ghost.dead then
     self.ghost:makeVulnerable(self.multiplier)
   end
-  if self.remaining_points == 0 then
-    self:initMap()
+
+  if self.map:isComplete() then
+    self.multiplier = self.multiplier + 1
+    self.map:generate()
   end
 end
 
