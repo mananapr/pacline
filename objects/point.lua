@@ -1,9 +1,11 @@
 Point = Object:extend()
 
-function Point:new(x, y, size)
+function Point:new(idx, x, y, size)
+  self.idx = idx
   self.x = x
   self.y = y
   self.size = size
+  self.tag = "point"
   self.active = true
   self.color = { 255, 251, 0 }
   self.creation_time = love.timer.getTime()
@@ -21,9 +23,10 @@ end
 
 PowerPoint = Point:extend()
 
-function PowerPoint:new(x, y, size)
-  PowerPoint.super.new(self, x, y, size)
+function PowerPoint:new(idx, x, y, size)
+  PowerPoint.super.new(self, idx, x, y, size)
   self.color = { 255, 255, 255 }
+  self.tag = "powerpoint"
   self.visible = true
   self.flash_interval = 0.2
   self.last_toggle_time = love.timer.getTime()

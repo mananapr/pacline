@@ -4,16 +4,20 @@ local function collisionFilter(_, other)
       if DebugMode then
         print("game over collision")
       end
-      return "touch"
+      return "cross"
     elseif not other.dead then
       if DebugMode then
         print("vulnerable collision")
       end
-      other:makeDead(other.x)
     end
     return "cross"
-  else
-    return nil
+  end
+
+  if other.tag == "point" or other.tag == "powerpoint" then
+    if DebugMode then
+      print("pacman point collision")
+    end
+    return "cross"
   end
 end
 
@@ -32,11 +36,20 @@ function Pacman:new(x, y, radius, speed, world)
 end
 
 ---@diagnostic disable-next-line: unused-local
-function Pacman:update(dt)
+function Pacman:update(dt, onEat, onCollision)
   local targetX = self.x + (self.direction * self.speed)
   local targetY = self.y
-  local actualX, actualY, _ = self.world:move(self, targetX, targetY, collisionFilter)
+  local actualX, actualY, cols = self.world:move(self, targetX, targetY, collisionFilter)
   self.x, self.y = actualX, actualY
+
+  for i = 1, #cols do
+    local other = cols[i].other
+    if (other.tag == "point" or other.tag == "powerpoint") and other.active then
+      onEat(other)
+    elseif other.tag == "ghost" then
+      onCollision()
+    end
+  end
 
   if self.x - self.radius > WindowWidth then
     self.world:update(self, 0 - self.radius, self.y)

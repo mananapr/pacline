@@ -17,7 +17,7 @@ function GameRoom:new()
   self.pacman =
     Pacman(self:getTileX(8), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed, self.world)
   self.ghost =
-    Ghost(self:getTileX(1), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed, self.world)
+    Ghost(self:getTileX(16), (WindowHeight / 2) + self.tilesize / 8, self.tilesize / 3, self.speed, self.world)
 
   self.world:add(self.pacman, self.pacman.x, WindowHeight / 2, 2 * self.tilesize / 3, 2 * self.tilesize / 3)
   self.world:add(self.ghost, self.ghost.x, WindowHeight / 2, 2 * self.tilesize / 3, 2 * self.tilesize / 3)
@@ -50,10 +50,11 @@ function GameRoom:update(dt)
     point:update(dt)
   end
 
-  self:checkCollision()
-  self:checkPoints()
-
-  self.pacman:update(dt)
+  self.pacman:update(dt, function(point)
+    self:eatPoint(point)
+  end, function()
+    self:onCollision()
+  end)
   self.ghost:update(dt, self.pacman.x)
 end
 
@@ -104,12 +105,16 @@ function GameRoom:initMap()
       local point_size = self.tilesize / 4
       local x = self:getTileX(i) + ((self.tilesize - point_size) / 2)
       local y = ((WindowHeight - point_size) / 2) + 5
-      table.insert(self.points, Point(x, y, point_size))
+      local p = Point(i, x, y, point_size)
+      table.insert(self.points, p)
+      self.world:add(p, p.x, p.y, point_size, point_size)
     elseif tile == 2 then
       local point_size = self.tilesize / 6
       local x = self:getTileX(i) + ((self.tilesize - point_size) / 2)
       local y = ((WindowHeight - point_size) / 2) + 5
-      table.insert(self.points, PowerPoint(x, y, point_size))
+      local p = PowerPoint(i, x, y, point_size)
+      table.insert(self.points, p)
+      self.world:add(p, p.x, p.y, point_size, point_size)
     end
   end
 end
@@ -118,45 +123,29 @@ function GameRoom:getTileX(idx)
   return (idx - 1) * self.tilesize
 end
 
-function GameRoom:checkCollision()
-  if math.abs(self.pacman.x - self.ghost.x) <= 2 * (self.tilesize / 3) then
-    if not self.ghost.vulnerable and not self.ghost.dead then
-      self.game_over = true
-      self.game_over_time = nil
-    elseif not self.ghost.dead then
-      local collision_point = self.ghost.x
-      self.ghost:makeDead(collision_point)
-      self.multiplier = self.multiplier + 1
-    end
+function GameRoom:onCollision()
+  if not self.ghost.vulnerable and not self.ghost.dead then
+    self.game_over = true
+    self.game_over_time = nil
+  elseif not self.ghost.dead then
+    local collision_point = self.ghost.x
+    self.ghost:makeDead(collision_point)
+    self.multiplier = self.multiplier + 1
   end
 end
 
-function GameRoom:checkPoints()
-  for i, tile in ipairs(self.tilemap) do
-    local tile_x = self:getTileX(i)
-    local tile_y = WindowHeight / 2
-    local tile_center_x = tile_x + self.tilesize / 2
-    local tile_center_y = tile_y
+function GameRoom:eatPoint(point)
+  self.world:remove(point)
+  point.active = false
+  self.tilemap[point.idx] = 0
+  self.remaining_points = self.remaining_points - 1
+  self.score = self.score + self.multiplier
 
-    local dx = math.abs(self.pacman.x - tile_center_x)
-    local dy = math.abs(self.pacman.y - tile_center_y)
-
-    local hit_radius = self.tilesize / 3
-
-    if dx < hit_radius and dy < hit_radius then
-      if tile ~= 0 then
-        self.tilemap[i] = 0
-        self.points[i].active = false
-        self.remaining_points = self.remaining_points - 1
-        self.score = self.score + self.multiplier
-        if tile == 2 and not self.ghost.dead then
-          self.ghost:makeVulnerable(self.multiplier)
-        end
-        if self.remaining_points == 0 then
-          self:initMap()
-        end
-      end
-    end
+  if point.tag == "powerpoint" and not self.ghost.dead then
+    self.ghost:makeVulnerable(self.multiplier)
+  end
+  if self.remaining_points == 0 then
+    self:initMap()
   end
 end
 

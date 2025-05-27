@@ -1,6 +1,19 @@
 local function collisionFilter(ghost, other)
-  if ghost.dead and other.tag == "pacman" then
-    return nil
+  if other.tag == "point" or other.tag == "powerpoint" then
+    if DebugMode then
+      print("ghost point collision")
+    end
+    return "cross"
+  end
+
+  if other.tag == "pacman" then
+    if ghost.dead then
+      return "cross"
+    elseif ghost.vulnerable then
+      return "cross"
+    else
+      return "cross"
+    end
   end
 end
 
@@ -67,7 +80,7 @@ function Ghost:update(dt, pacmanX)
       self.world:update(self, self.radius, self.y)
       self.x = self.radius
     else
-      local actualX, _ = self.world:move(self, self.x + (self.direction * effective_speed), self.y)
+      local actualX, _ = self.world:move(self, self.x + (self.direction * effective_speed), self.y, collisionFilter)
       self.x = actualX
     end
   end
