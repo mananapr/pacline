@@ -31,6 +31,7 @@ function Pacman:new(x, y, radius, speed, world)
   self.creation_time = love.timer.getTime()
 end
 
+---@diagnostic disable-next-line: unused-local
 function Pacman:update(dt)
   local targetX = self.x + (self.direction * self.speed)
   local targetY = self.y

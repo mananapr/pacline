@@ -15,9 +15,8 @@ function love.load()
   RecursiveEnumerate("rooms", room_files)
   RequireFiles(room_files)
 
-  WindowWidth, WindowHeight = love.graphics.getDimensions()
-
   DebugMode = CheckDebug()
+  WindowWidth, WindowHeight = love.graphics.getDimensions()
 
   CurrentRoom = nil
   GotoRoom("MenuRoom")

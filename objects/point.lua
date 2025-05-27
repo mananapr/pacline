@@ -9,6 +9,7 @@ function Point:new(x, y, size)
   self.creation_time = love.timer.getTime()
 end
 
+---@diagnostic disable-next-line: unused-local
 function Point:update(dt) end
 
 function Point:draw()
@@ -28,6 +29,7 @@ function PowerPoint:new(x, y, size)
   self.last_toggle_time = love.timer.getTime()
 end
 
+---@diagnostic disable-next-line: unused-local
 function PowerPoint:update(dt)
   local current_time = love.timer.getTime()
   if current_time - self.last_toggle_time >= self.flash_interval then
