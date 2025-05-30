@@ -60,7 +60,7 @@ function Ghost:update(dt, pacmanX)
     end
   else
     if not self.vulnerable then
-      effective_speed = self.speed * 1.1
+      effective_speed = self.speed * 1.25
       self.direction = (self.x < pacmanX) and math.abs(self.direction) or -math.abs(self.direction)
     else
       effective_speed = self.speed * 0.7
