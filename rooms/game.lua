@@ -1,3 +1,5 @@
+HighScore = 0
+
 GameRoom = Object:extend()
 
 function GameRoom:new()
@@ -38,6 +40,9 @@ end
 function GameRoom:update(dt)
   if self.game_over then
     Res.sound.bgm:stop()
+    if self.score > HighScore then
+      HighScore = self.score
+    end
     if not self.game_over_time then
       self.game_over_time = love.timer.getTime()
     elseif love.timer.getTime() - self.game_over_time >= 2 then
@@ -84,6 +89,9 @@ function GameRoom:draw()
   love.graphics.setColor(love.math.colorFromBytes(table.unpack(self.font_color)))
   love.graphics.print(tostring(self.score), 10, 10)
   love.graphics.print("x" .. self.multiplier, 10, 40)
+
+  love.graphics.print("HI", WindowWidth - self.font:getWidth("HI") - 10, 10)
+  love.graphics.print(tostring(HighScore), WindowWidth - self.font:getWidth(tostring(HighScore)) - 10, 40)
 
   self.border_top:draw()
   self.border_bot:draw()
