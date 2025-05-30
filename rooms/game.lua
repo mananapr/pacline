@@ -47,7 +47,7 @@ function GameRoom:update(dt)
     return
   end
 
-  local new_speed = self.speed * (1 + math.log(self.multiplier + 1) * 0.1) * dt
+  local new_speed = self.speed * (1 + math.log(self.multiplier + 1) * 0.25) * dt
   new_speed = math.min(new_speed, self.tilesize / 3)
   self.pacman.speed = new_speed
   self.ghost.speed = new_speed
