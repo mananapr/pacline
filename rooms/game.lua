@@ -29,10 +29,15 @@ function GameRoom:new()
   self.game_over = false
   self.game_over_time = nil
   self.creation_time = love.timer.getTime()
+
+  Res.sound.bgm:setLooping(true)
+  Res.sound.bgm:setVolume(0.5)
+  Res.sound.bgm:play()
 end
 
 function GameRoom:update(dt)
   if self.game_over then
+    Res.sound.bgm:stop()
     if not self.game_over_time then
       self.game_over_time = love.timer.getTime()
     elseif love.timer.getTime() - self.game_over_time >= 2 then

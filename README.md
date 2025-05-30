@@ -18,5 +18,6 @@ make
 ### assets
 - [keys](https://blatfan.itch.io/blatkeys)
 - [sounds](https://jdwasabi.itch.io/8-bit-16-bit-sound-effects-pack)
+- [bgm](https://freemusicarchive.org/music/Rolemusic/gigs_n_contest/rolemusic_-_gigs_n_contest_-_03_Another_beek_beep_beer_please/)
 - [sprites](https://pixelaholic.itch.io/pac-man-game-art)
 - [font](https://datagoblin.itch.io/monogram)
