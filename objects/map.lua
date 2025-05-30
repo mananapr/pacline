@@ -13,11 +13,19 @@ function Map:new(world, tilesize, screen_height)
   self:generate()
 end
 
-function Map:generate()
+function Map:generate(pacmanX)
   self.points = {}
   self.tilemap = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 
-  local power_idx = self.valid_power_idx[love.math.random(#self.valid_power_idx)]
+  local idx_pool
+  if not pacmanX then
+    idx_pool = self.valid_power_idx
+  elseif pacmanX <= WindowWidth / 2 then
+    idx_pool = { unpack(self.valid_power_idx, 6, #self.valid_power_idx) }
+  else
+    idx_pool = { unpack(self.valid_power_idx, 1, 5) }
+  end
+  local power_idx = self.valid_power_idx[love.math.random(#idx_pool)]
   self.tilemap[power_idx] = 2
 
   self.remaining_points = 0

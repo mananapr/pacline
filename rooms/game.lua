@@ -121,7 +121,7 @@ function GameRoom:eatPoint(point)
 
   if self.map:isComplete() then
     self.multiplier = self.multiplier + 1
-    self.map:generate()
+    self.map:generate(self.pacman.x)
   end
 end
 
